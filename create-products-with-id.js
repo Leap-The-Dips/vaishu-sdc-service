@@ -1,6 +1,6 @@
 /* 
 Execute it with 'node create-products-with-id.js'
-Script run time : 17mins
+Script run time : 33s
 Creates 10000000 products.
 */
 
@@ -19,7 +19,7 @@ function writeTenMillionImages(writer, encoding, callback) {
     do {
       i -= 1;
       id += 1;
-      let prodName = faker.random.words(3);
+      let prodName = faker.commerce.productName();
       if(prodName.includes(",")) prodName = `"${prodName}"`;
       const data = `${id},${prodName}\n`;
       if (i === 0) {
@@ -27,16 +27,12 @@ function writeTenMillionImages(writer, encoding, callback) {
       } else {
         // see if we should continue, or wait
         // don't pass the callback, because we're not done yet.
-        if(i % 100000 === 0) {
-          console.log(i);
-        }
         ok = writer.write(data, encoding);
       }
     } while (i > 0 && ok);
     if (i > 0) {
       // had to stop early!
       // write some more once it drains
-      
       writer.once('drain', write);
     }
   }
@@ -44,5 +40,6 @@ function writeTenMillionImages(writer, encoding, callback) {
 }
 
 writeTenMillionImages(writeImages, 'utf-8', () => {
+  console.log('Exe time',process.uptime());
   writeImages.end();
 });
