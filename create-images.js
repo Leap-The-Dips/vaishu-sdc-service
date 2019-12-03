@@ -2,12 +2,13 @@
 Execute it with 'node create-images.js'
 Script run time : 5.30mins
 Creates 89978964 images.
+Script run time : 202.23492092s(3.3min) for ~45000000. 
 */
 
 const fs = require('fs');
 const faker = require('faker');
 
-const writeImages = fs.createWriteStream('images-with-prodid.csv');
+const writeImages = fs.createWriteStream('images-with-prodid1.csv');
 writeImages.write('img_small,img_large,img_zoom,product_id\n', 'utf8');
 
 function writeTenMillionImages(writer, encoding, callback) {
@@ -31,23 +32,21 @@ function writeTenMillionImages(writer, encoding, callback) {
   function write() {
     let ok = true;
     let data;
+    let start;
     do {
       i -= 1;
       id += 1;
-
       imgCnt = Math.floor(Math.random() * 8) + 1;
-      var result = imageList.slice(0, imgCnt);
+      start = (imgCnt > 4) ? 4 : 0;  
+      var result = imageList.slice(start, imgCnt);
       data = '';
-      for (var j = 0; j < imgCnt; j++) {
+      for (var j = 0; j < result.length; j++) {
         result[j][3] = id;
         data += `${result[j].join(',')}\n`;
       }
       if (i === 1) {
         writer.write(data, encoding, callback);
       } else {
-        if(i % 100000 === 0) {
-          console.log(i);
-        }
         ok = writer.write(data, encoding);
       }
     } while (i > 1 && ok);
@@ -59,5 +58,6 @@ function writeTenMillionImages(writer, encoding, callback) {
 }
 
 writeTenMillionImages(writeImages, 'utf-8', () => {
+  console.log('Exe time',process.uptime());
   writeImages.end();
 });
